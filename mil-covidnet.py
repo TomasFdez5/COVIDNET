@@ -124,8 +124,9 @@ def generate_data(n_ver,n_hor,gen):
 
         data_count +=1
 
-    for i in range(n_ver*n_hor):
-        segment_list[i] = np.array(segment_list[i])
+    #for i in range(n_ver*n_hor):
+    #    segment_list[i] = np.array(segment_list[i])
+    segment_list = [np.array(i) for i in segment_list]
 
     return segment_list, np.array(labels)
 
@@ -218,6 +219,7 @@ def main():
     parser.add_argument('-g',dest='graph', help='Save train historical graphs',action='store_true')
 
     args = parser.parse_args()
+
     # IMAGES GENERATION ----
     train_path = './dataset/train'
     test_path = './dataset/test'
@@ -225,7 +227,11 @@ def main():
     train_gen = ImageDataGenerator(rescale=1./255.)
     test_gen = ImageDataGenerator(rescale=1./255.)
 
-    batchSize = int(args.batch_size)
+    if int(args.batch_size) < 0:
+        print("[ERROR] Batch size must to be greater than 0. Setting to default value (16)...")
+        batchSize = 16
+    else:
+        batchSize = int(args.batch_size)
 
     gtrain = train_gen.flow_from_directory(
         train_path,
@@ -242,10 +248,19 @@ def main():
     )
 
     # DATASET GENERATION ----
-    n_ver = int(args.number_vert)
-    n_hor = int(args.number_hor)
-    n_seg = n_ver*n_hor
+    if int(args.number_vert) < 0:
+        print("[ERROR] Number of vertical slices must to be greater than 0. Setting to default value (2)...")
+        n_ver = 2
+    else:
+        n_ver = int(args.number_vert)
+    
+    if int(args.number_hor) < 0:
+        print("[ERROR] Number of horizontal slices must to be greater than 0. Setting to default value (2)...")
+        n_hor = 2
+    else:
+        n_hor = int(args.number_hor)
 
+    n_seg = n_ver*n_hor
     seg_shape=(224//n_hor,224//n_ver,3)
 
     x_train,y_train = generate_data(n_ver,n_hor,gtrain)
@@ -265,11 +280,18 @@ def main():
     modelo = tf.keras.Model(inputs_list,out)
 
     # ENTRENAMIENTO DEL MODELO ----
-    nEpochs = int(args.epochs)
+    if int(args.epochs) < 0:
+        print("[ERROR] Number of epochs must to be greater than 0. Setting to default value (15)...")
+        nEpochs = 15
+    else:
+        nEpochs = int(args.epochs)
+
     lrate = 0.001
     opt = tf.keras.optimizers.Adam(lr=lrate)
-    callbacks = []
+    callbacks = [] # List of objects that can perform actions at various stages of training
+    
 
+    # User want to save the state of the model when its loss improves
     if args.modelCheckpoint:
         if args.modelCheckpoint.find('.h5') == -1:
             print("\n[Warning] The extent of the model is not indicated. Setting to: /checkpoints/best_model.h5")
