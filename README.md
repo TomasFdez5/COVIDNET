@@ -25,4 +25,4 @@ $ git clone git@github.com:TomasFdez5/MIL-COVIDNET.git
 - **Tomás Fernández Urbano** - Lead developer: [GitHub](https://github.com/TomasFdez5) & [LinkedIn](www.linkedin.com/in/tomasfernandezurbano).
 
 ## License
-This project is licensed under the GNU GPL v3 License - see the [LICENSE.md](LICENSE.md) file for details.
+This project is licensed under the GNU GPL v3 License - see the [LICENSE](LICENSE) file for details.
