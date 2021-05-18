@@ -111,7 +111,7 @@ def generate_data(n_ver,n_hor,gen):
     for i in range(n_ver*n_hor):
         segment_list.append([])
     
-    # Generar todos los segmentos de todas las imágenes.
+    # Generate all the segments for all the images.
     while data_count != gen.n:
         dat = gen.next()
         img= dat[0].reshape(224,224,3)
@@ -191,12 +191,14 @@ def history_graph(history):
     Input:
         - history: Training history.
     """
+
     plt.plot(history.history['acc'])
     plt.title('Model Accuracy')
     plt.ylabel('Accuracy')
     plt.xlabel('Epochs')
     plt.legend(['Training'], loc='upper right')
-    plt.savefig('./model_loss.jpg')
+    plt.savefig('./model_accuracy.jpg')
+
     plt.plot(history.history['loss'])
     plt.title('Model loss')
     plt.ylabel('Loss')
