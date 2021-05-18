@@ -279,7 +279,7 @@ def main():
 
     modelo = tf.keras.Model(inputs_list,out)
 
-    # ENTRENAMIENTO DEL MODELO ----
+    # MODEL TRAINING ----
     if int(args.epochs) < 0:
         print("[ERROR] Number of epochs must to be greater than 0. Setting to default value (15)...")
         nEpochs = 15
