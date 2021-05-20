@@ -25,6 +25,15 @@ $ pipenv install
 $ pipenv shell
 ```
 
+## Demo
+
+## Uninstall
+```bash
+# Grant permissions to run the uninstall script
+$ chmod 777 uninstall.sh
+
+$ ./uninstall.sh
+```
 
 ## Built with
 - [TensorFlow](https://github.com/tensorflow/tensorflow) - Tools for machine learning.
