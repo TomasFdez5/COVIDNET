@@ -14,7 +14,7 @@ MIL-COVIDNET is a software designed for the detection of COVID-19 in chest radio
 # Repository files
 $ git clone git@github.com:TomasFdez5/MIL-COVIDNET.git
 
-# Download large files from Google Drive
+# Move to the project directory
 $ cd MIL-COVIDNET/
 
 # Install dependencies with pipenv (Recommended) or install manually.
