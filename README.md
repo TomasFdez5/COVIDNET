@@ -41,9 +41,9 @@ $ ./uninstall.sh
 
 
 ## Authors
-- **Tomás Fernández Urbano** - Lead developer: [GitHub](https://github.com/TomasFdez5) & [LinkedIn](www.linkedin.com/in/tomasfernandezurbano).
-
-[![Linkedin](https://i.stack.imgur.com/gVE0j.png) LinkedIn](https://www.linkedin.com/in/tomasfernandezurbano)
+- **Tomás Fernández Urbano** - Lead developer.
+    - [![Linkedin](https://i.stack.imgur.com/gVE0j.png) LinkedIn](https://www.linkedin.com/in/tomasfernandezurbano)
+    - [![GitHub](https://i.stack.imgur.com/tskMh.png) GitHub](https://github.com/TomasFdez5)
 
 ## License
 This project is licensed under the GNU GPL v3 License - see the [LICENSE](LICENSE) file for details.
