@@ -1,4 +1,5 @@
 import tensorflow as tf
+from tensorflow.python.ops.gen_math_ops import mul
 
 """from keras import backend as k
 config = tf.ConfigProto()
@@ -33,11 +34,6 @@ def create_cnn(seg_shape):
     x =  tf.keras.layers.MaxPool2D(2,2)(x)
     x = tf.keras.layers.Conv2D(64,(3,3),activation='relu')(x)
     x =  tf.keras.layers.MaxPool2D(2,2)(x)
-    x = tf.keras.layers.Conv2D(128,(3,3),activation='relu')(x)
-    x =  tf.keras.layers.MaxPool2D(2,2)(x)
-    x = tf.keras.layers.Attention(128)([x,x])
-    #x_output = tf.keras.layers.GlobalMaxPool2D()(x)
-    #x_output = tf.keras.layers.GlobalAveragePooling2D()(x)
     x_output = tf.keras.layers.Flatten()(x)
     
     cnn = tf.keras.Model(x_input,x_output)
@@ -56,7 +52,7 @@ def segment(n_ver,n_hor,image):
         - image_segments: Image segment list.
     """
     height,width,_ = image.shape
-    image_copy = image # I STORE A COPY OF THE ORIGINAL IMAGE TO SEGMENT CORRECTLY
+    image_copy = image # I store a copy of the original image to segment correctly
 
     image_segments=[]
     for ivert in range(n_hor):
@@ -72,7 +68,6 @@ def segment(n_ver,n_hor,image):
             
             h = (height//n_hor)
             w = (width//n_ver)
-            #print(x,y,h,w)
 
             image_segments.append(image[y:y+h,x:x+w])
             image = image_copy
@@ -80,7 +75,7 @@ def segment(n_ver,n_hor,image):
 
     """
     # CODE TO SEE THE PERFORMED SEGMENTS 
-
+    plt.imshow(image)
     fig=plt.figure(figsize=(5,5))
     cols = n_ver
     fils = n_hor
@@ -88,8 +83,8 @@ def segment(n_ver,n_hor,image):
         img = image_segments[i-1]
         fig.add_subplot(fils, cols, i)
         plt.imshow(img)
-    plt.show()
-    """
+    plt.show()"""
+    
     
     return image_segments
 
@@ -151,9 +146,9 @@ def report(history,real,pred,file):
     # Precision
     prec = tp/(tp+fp)
     # Recall
-    recall = tp/(tp+fn)
+    sensitivity = tp/(tp+fn)
     # F1-score
-    f1score = 2*((prec*recall)/(prec+recall))
+    f1score = 2*((prec*sensitivity)/(prec+sensitivity))
     # Specificity
     spe = tn / (tn+fp)
 
@@ -169,8 +164,17 @@ def report(history,real,pred,file):
             f.write("\nMaximum: {}".format(max(np.array(history.history['loss']))))
             f.write("\nMinimum: {}".format(min(np.array(history.history['loss']))))
             f.write("\nMean: {}".format(np.mean(np.array(history.history['loss']))))
-            f.write("\nTypical deviation: {}".format(np.std(np.array(history.history['loss']))))
-            f.write("\n\t-- Test evaluation--\n\n Confusion matrix:\n( TP:{}  FP: {} )\n( FN:{}  TN: {} )\n\nAccuracy: {}\nPrecision: {}\nRecall: {}\nF1-score:{}\nSpecificity:{}\n".format(tp,fp,fn,tn,accuracy,prec,recall,f1score,spe))
+            f.write('\t-- Validation Accuracy --\n')
+            f.write("\nMaximum: {}".format(max(np.array(history.history['val_acc']))))
+            f.write("\nMinimum: {}".format(min(np.array(history.history['val_acc']))))
+            f.write("\nMean: {}".format(np.mean(np.array(history.history['val_acc']))))
+            f.write("\nTypical deviation: {}".format(np.std(np.array(history.history['val_acc']))))
+            f.write('\n\t-- Validation Loss --\n')
+            f.write("\nMaximum: {}".format(max(np.array(history.history['val_loss']))))
+            f.write("\nMinimum: {}".format(min(np.array(history.history['val_loss']))))
+            f.write("\nMean: {}".format(np.mean(np.array(history.history['val_loss']))))
+            f.write("\nTypical deviation: {}".format(np.std(np.array(history.history['val_loss']))))
+            f.write("\n\t-- Test evaluation--\n\n Confusion matrix:\n( TP:{}  FP: {} )\n( FN:{}  TN: {} )\n\nAccuracy: {}\nSensitivity: {}\nSpecificity:{}\n\nOther metrics:\nPrecision: {}\nF1-score:{}\n".format(tp,fp,fn,tn,accuracy,sensitivity,spe,prec,f1score))
     else:
         print('\t-- Train Accuracy --\n')
         print("Maximum: ", max(np.array(history.history['acc'])))
@@ -182,7 +186,17 @@ def report(history,real,pred,file):
         print("Minimum: ", min(np.array(history.history['loss'])))
         print("Mean: ", np.mean(np.array(history.history['loss'])))
         print("Typical deviation: ", np.std(np.array(history.history['loss'])))
-        print("\n\t-- Test evaluation--\n\n Confusion matrix:\n( TP:{}  FP: {} )\n( FN:{}  TN: {} )\n\nAccuracy: {}\nPrecision: {}\nRecall: {}\nF1-score:{}\nSpecificity:{}\n".format(tp,fp,fn,tn,accuracy,prec,recall,f1score,spe))
+        print('\t-- Validation Accuracy --\n')
+        print("Maximum: ", max(np.array(history.history['val_acc'])))
+        print("Minimum: ", min(np.array(history.history['val_acc'])))
+        print("Mean: ", np.mean(np.array(history.history['val_acc'])))
+        print("Typical deviation: ", np.std(np.array(history.history['val_acc'])))
+        print('\n\t-- Validation Loss --\n')
+        print("Maximum: ", max(np.array(history.history['val_loss'])))
+        print("Minimum: ", min(np.array(history.history['val_loss'])))
+        print("Mean: ", np.mean(np.array(history.history['val_loss'])))
+        print("Typical deviation: ", np.std(np.array(history.history['val_loss'])))
+        print("\n\t-- Test evaluation--\n\n Confusion matrix:\n( TP:{}  FP: {} )\n( FN:{}  TN: {} )\n\nAccuracy: {}\nSensitivity: {}\nSpecificity:{}\n\nOther metrics:\nPrecision: {}\nF1-score:{}\n".format(tp,fp,fn,tn,accuracy,sensitivity,spe,prec,f1score))
 
 
 def history_graph(history):
@@ -193,25 +207,28 @@ def history_graph(history):
     """
 
     plt.plot(history.history['acc'])
+    plt.plot(history.history['val_acc'])
     plt.title('Model Accuracy')
     plt.ylabel('Accuracy')
     plt.xlabel('Epochs')
-    plt.legend(['Training'], loc='upper right')
+    plt.legend(['Training','Validation'], loc='upper right')
     plt.savefig('./model_accuracy.jpg')
-
+    plt.clf()
     plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
     plt.title('Model loss')
     plt.ylabel('Loss')
     plt.xlabel('Epochs')
-    plt.legend(['Training'], loc='upper right')
+    plt.legend(['Training','Validation'], loc='upper right')
     plt.savefig('./model_loss.jpg')
 
 # MAIN ------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 def main():
-    # Parameter control
+    # PARAMETER CONTROL
     parser = argparse.ArgumentParser(description='Executable to train and test MIL-CNN Covid-19 detection.')
 
+    parser.add_argument('-d', dest='dataset',help='Directory of the dataset', required=True)
     parser.add_argument('-b', dest='batch_size',help='Size of the batch', required=False,default=16)
     parser.add_argument('-c', dest='modelCheckpoint', help='Save the state of the model when its loss improves', required=False)
     parser.add_argument('-e', dest='epochs',help='Number of epochs', required=False,default=15)
@@ -223,10 +240,10 @@ def main():
     args = parser.parse_args()
 
     # IMAGES GENERATION ----
-    train_path = './dataset/train'
-    test_path = './dataset/test'
+    train_path = args.dataset+'/train'
+    test_path = args.dataset+'/test'
 
-    train_gen = ImageDataGenerator(rescale=1./255.)
+    train_gen = ImageDataGenerator(rescale=1./255.,validation_split=0.2)
     test_gen = ImageDataGenerator(rescale=1./255.)
 
     if int(args.batch_size) < 0:
@@ -239,9 +256,17 @@ def main():
         train_path,
         target_size=(224,224),
         batch_size=1, # Size 1 to apply segmentation one by one.
-        class_mode='categorical'
+        class_mode='categorical',
+        subset='training' # Used for training subset
     )
 
+    gvalidation = train_gen.flow_from_directory(
+        train_path,
+        target_size=(224,224),
+        batch_size=1, # Size 1 to apply segmentation one by one.
+        class_mode='categorical',
+        subset='validation' # Used for validation subset
+    )
     gtest = test_gen.flow_from_directory(
         test_path,
         target_size=(224,224),
@@ -266,20 +291,22 @@ def main():
     seg_shape=(224//n_hor,224//n_ver,3)
 
     x_train,y_train = generate_data(n_ver,n_hor,gtrain)
+    x_val, y_val = generate_data(n_ver,n_hor,gvalidation)
     x_test,y_test = generate_data(n_ver,n_hor,gtest)
 
-    # CREACIÓN DEL MODELO ----
+    # MODEL CREATION ----
     model_list = []
     for i in range(n_seg):
         model_list.append(create_cnn(seg_shape))
 
     inputs_list = [m.input for m in model_list]
     outputs_list = [m.output for m in model_list]
+
     conc_out = tf.keras.layers.concatenate(outputs_list)
     dense = tf.keras.layers.Dense(128,activation='relu')(conc_out)
     out = tf.keras.layers.Dense(2,activation='softmax',name='output_layer')(dense)
 
-    modelo = tf.keras.Model(inputs_list,out)
+    model = tf.keras.Model(inputs_list,out)
 
     # MODEL TRAINING ----
     if int(args.epochs) < 0:
@@ -288,7 +315,7 @@ def main():
     else:
         nEpochs = int(args.epochs)
 
-    lrate = 0.001
+    lrate = 1e-4
     opt = tf.keras.optimizers.Adam(lr=lrate)
     callbacks = [] # List of objects that can perform actions at various stages of training
     
@@ -308,19 +335,21 @@ def main():
     earlystop = EarlyStopping(monitor='loss',mode='min',patience=4,restore_best_weights=True,verbose=1)
     callbacks.append(earlystop)
 
-    modelo.compile(loss='categorical_crossentropy',optimizer=opt,metrics=['acc'])
-    #modelo.summary()
-    history = modelo.fit(
+    model.compile(loss='categorical_crossentropy',optimizer=opt,metrics=['acc'])
+    #model.summary()
+    history = model.fit(
         x_train,
         y_train,
         epochs=nEpochs,
         batch_size=batchSize,
         steps_per_epoch=len(x_train[0])//batchSize,
+        validation_data=(x_val,y_val),
+        validation_steps = len(x_val[0])//batchSize,
         callbacks=callbacks
     )
 
     if args.modelCheckpoint:
-        modelo.load_weights(checkpointdir)
+        model.load_weights(checkpointdir)
 
     # VIEW MODEL TRAINING HISTORY ----
     if args.graph:
@@ -328,7 +357,7 @@ def main():
 
     # MODEL TEST ----
     print("Nº datos test: ", gtest.n)
-    prediccion = modelo.predict(x_test)
+    prediccion = model.predict(x_test)
     y_pred = np.argmax(prediccion,axis=1)
     y_test = [0 if np.argmax(i)==0 else 1 for i in y_test]
 
