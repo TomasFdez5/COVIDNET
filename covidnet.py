@@ -182,8 +182,6 @@ def main():
     parser.add_argument('-c', dest='modelCheckpoint', help='Save the state of the model when its loss improves', required=False)
     parser.add_argument('-e', dest='epochs',help='Number of epochs', required=False,default=15)
     parser.add_argument('-o', dest='file_output',help='Directory name to save results', required=False,default=None)
-    parser.add_argument('-v','--vertical', dest='number_vert',help='number of vertical cuts', required=False,default=2)
-    parser.add_argument('-n','--horizontal', dest='number_hor',help='number of horizontal  cuts', required=False,default=2)
     parser.add_argument('-g',dest='graph', help='Save train historical graphs',action='store_true')
 
     args = parser.parse_args()
