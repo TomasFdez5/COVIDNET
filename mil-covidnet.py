@@ -34,6 +34,7 @@ def create_cnn(seg_shape):
     x =  tf.keras.layers.MaxPool2D(2,2)(x)
     x = tf.keras.layers.Conv2D(64,(3,3),activation='relu')(x)
     x =  tf.keras.layers.MaxPool2D(2,2)(x)
+    x = tf.keras.layers.Dropout(0.2)(x)
     x_output = tf.keras.layers.Flatten()(x)
     
     cnn = tf.keras.Model(x_input,x_output)
