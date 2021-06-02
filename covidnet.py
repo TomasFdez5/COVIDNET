@@ -222,7 +222,7 @@ def main():
         class_mode='categorical'
     )
 
-    # DATASET GENERATION ----
+    # TEST SET GENERATION ----
     x_test,y_test = generate_data(gtest)
 
     # MODEL CREATION ----
@@ -275,7 +275,6 @@ def main():
         history_graph(history)
 
     # MODEL TEST ----
-    print("Nº datos test: ", gtest.n)
     prediccion = model.predict(x_test)
     y_pred = np.argmax(prediccion,axis=1)
     y_test = [0 if np.argmax(i)==0 else 1 for i in y_test]
