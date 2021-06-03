@@ -194,7 +194,7 @@ def main():
     test_gen = ImageDataGenerator(rescale=1./255.)
 
     if int(args.batch_size) < 0:
-        print("[ERROR] Batch size must to be greater than 0. Setting to default value (16)...")
+        print("[ERROR] Batch size must to be greater than 0. Setting to default value (32)...")
         batchSize = 32
     else:
         batchSize = int(args.batch_size)
@@ -230,7 +230,7 @@ def main():
 
     # MODEL TRAINING ----
     if int(args.epochs) < 0:
-        print("[ERROR] Number of epochs must to be greater than 0. Setting to default value (15)...")
+        print("[ERROR] Number of epochs must to be greater than 0. Setting to default value (40)...")
         nEpochs = 40
     else:
         nEpochs = int(args.epochs)
