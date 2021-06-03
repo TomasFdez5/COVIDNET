@@ -32,9 +32,9 @@ def create_cnn(seg_shape):
     x_input = tf.keras.layers.Input(shape=seg_shape)
     x = tf.keras.layers.Conv2D(32,(3,3),activation='relu')(x_input)
     x =  tf.keras.layers.MaxPool2D(2,2)(x)
+    x = tf.keras.layers.Dropout(0.2)(x)
     x = tf.keras.layers.Conv2D(64,(3,3),activation='relu')(x)
     x =  tf.keras.layers.MaxPool2D(2,2)(x)
-    x = tf.keras.layers.Dropout(0.2)(x)
     x_output = tf.keras.layers.Flatten()(x)
     
     cnn = tf.keras.Model(x_input,x_output)
@@ -230,9 +230,9 @@ def main():
     parser = argparse.ArgumentParser(description='Executable to train and test MIL-CNN Covid-19 detection.')
 
     parser.add_argument('-d', dest='dataset',help='Directory of the dataset', required=True)
-    parser.add_argument('-b', dest='batch_size',help='Size of the batch', required=False,default=16)
+    parser.add_argument('-b', dest='batch_size',help='Size of the batch', required=False,default=32)
     parser.add_argument('-c', dest='modelCheckpoint', help='Save the state of the model when its loss improves', required=False)
-    parser.add_argument('-e', dest='epochs',help='Number of epochs', required=False,default=15)
+    parser.add_argument('-e', dest='epochs',help='Number of epochs', required=False,default=40)
     parser.add_argument('-o', dest='file_output',help='Directory name to save results', required=False,default=None)
     parser.add_argument('-v','--vertical', dest='number_vert',help='number of vertical cuts', required=False,default=2)
     parser.add_argument('-n','--horizontal', dest='number_hor',help='number of horizontal  cuts', required=False,default=2)
@@ -248,8 +248,8 @@ def main():
     test_gen = ImageDataGenerator(rescale=1./255.)
 
     if int(args.batch_size) < 0:
-        print("[ERROR] Batch size must to be greater than 0. Setting to default value (16)...")
-        batchSize = 16
+        print("[ERROR] Batch size must to be greater than 0. Setting to default value (32)...")
+        batchSize = 32
     else:
         batchSize = int(args.batch_size)
 
@@ -312,7 +312,7 @@ def main():
     # MODEL TRAINING ----
     if int(args.epochs) < 0:
         print("[ERROR] Number of epochs must to be greater than 0. Setting to default value (15)...")
-        nEpochs = 15
+        nEpochs = 40
     else:
         nEpochs = int(args.epochs)
 
