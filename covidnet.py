@@ -3,8 +3,8 @@ from tensorflow import keras
 from tensorflow.python.keras.layers.core import Dropout
 from tensorflow.python.ops.gen_math_ops import mul
 
-"""from keras import backend as k
-config = tf.ConfigProto()
+from tensorflow.keras import backend as k
+"""config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
 sess = tf.Session(config=config)
 try:
@@ -16,7 +16,8 @@ import keras"""
 import matplotlib.pyplot as plt
 import numpy as np
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
+from tensorflow.keras.layers import *
+from tensorflow.keras.callbacks import EarlyStopping
 import argparse
 
 
@@ -32,14 +33,14 @@ def create_cnn(seg_shape):
         - cnn: Convolutional neuronal network created.
     """
     cnn =  tf.keras.models.Sequential([
-        tf.keras.layers.Conv2D(32,(3,3),activation='relu',input_shape=seg_shape),
-        tf.keras.layers.MaxPool2D(2,2),
-        tf.keras.layers.Dropout(0.2),
-        tf.keras.layers.Conv2D(64,(3,3),activation='relu'),
-        tf.keras.layers.MaxPool2D(2,2),
-        tf.keras.layers.Flatten(),
-        tf.keras.layers.Dense(128,activation='relu'),
-        tf.keras.layers.Dense(2,activation='softmax',name='output_layer')
+        Conv2D(32,(3,3),activation='relu',input_shape=seg_shape),
+        MaxPool2D(2,2),
+        Dropout(0.2),
+        Conv2D(64,(3,3),activation='relu'),
+        MaxPool2D(2,2),
+        Flatten(),
+        Dense(128,activation='relu'),
+        Dense(2,activation='softmax',name='output_layer')
     ])
     return cnn
 
@@ -179,7 +180,6 @@ def main():
 
     parser.add_argument('-d', dest='dataset',help='Directory of the dataset', required=True)
     parser.add_argument('-b', dest='batch_size',help='Size of the batch', required=False,default=32)
-    parser.add_argument('-c', dest='modelCheckpoint', help='Save the state of the model when its loss improves', required=False)
     parser.add_argument('-e', dest='epochs',help='Number of epochs', required=False,default=40)
     parser.add_argument('-o', dest='file_output',help='Directory name to save results', required=False,default=None)
     parser.add_argument('-g',dest='graph', help='Save train historical graphs',action='store_true')
@@ -238,18 +238,6 @@ def main():
     lrate = 1e-4
     opt = tf.keras.optimizers.Adam(lr=lrate)
     callbacks = [] # List of objects that can perform actions at various stages of training
-    
-
-    # User want to save the state of the model when its loss improves
-    if args.modelCheckpoint:
-        if args.modelCheckpoint.find('.h5') == -1:
-            print("\n[Warning] The extent of the model is not indicated. Setting to: /checkpoints/best_model.h5")
-            checkpointdir = "./checkpoints/best_model.h5"
-        else:
-            checkpointdir = args.modelCheckpoint
-
-        checkpoint = ModelCheckpoint(filepath=checkpointdir,save_weights_only=False,monitor='loss',verbose=1,save_best_only=True, mode='min')
-        callbacks.append(checkpoint)
 
     # Stop training when a monitored metric has stopped improving.
     earlystop = EarlyStopping(monitor='loss',mode='min',patience=4,restore_best_weights=True,verbose=1)
@@ -267,15 +255,11 @@ def main():
         callbacks=callbacks
     )
 
-    if args.modelCheckpoint:
-        model.load_weights(checkpointdir)
-
     # VIEW MODEL TRAINING HISTORY ----
     if args.graph:
         history_graph(history)
 
     # MODEL TEST ----
-    print("Nº datos test: ", gtest.n)
     prediccion = model.predict(x_test)
     y_pred = np.argmax(prediccion,axis=1)
     y_test = [0 if np.argmax(i)==0 else 1 for i in y_test]
