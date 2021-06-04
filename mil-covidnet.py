@@ -14,7 +14,8 @@ import keras"""
 import matplotlib.pyplot as plt
 import numpy as np
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
+from tensorflow.keras.layers import *
+from tensorflow.keras.callbacks import EarlyStopping
 import argparse
 
 
@@ -29,13 +30,13 @@ def create_cnn(seg_shape):
     Output:
         - cnn: Convolutional neuronal network created.
     """
-    x_input = tf.keras.layers.Input(shape=seg_shape)
-    x = tf.keras.layers.Conv2D(32,(3,3),activation='relu')(x_input)
-    x =  tf.keras.layers.MaxPool2D(2,2)(x)
-    x = tf.keras.layers.Dropout(0.2)(x)
-    x = tf.keras.layers.Conv2D(64,(3,3),activation='relu')(x)
-    x =  tf.keras.layers.MaxPool2D(2,2)(x)
-    x_output = tf.keras.layers.Flatten()(x)
+    x_input = Input(shape=seg_shape)
+    x = Conv2D(32,(3,3),activation='relu')(x_input)
+    x =  MaxPool2D(2,2)(x)
+    x = Dropout(0.2)(x)
+    x = Conv2D(64,(3,3),activation='relu')(x)
+    x =  MaxPool2D(2,2)(x)
+    x_output = Flatten()(x)
     
     cnn = tf.keras.Model(x_input,x_output)
 
@@ -231,7 +232,6 @@ def main():
 
     parser.add_argument('-d', dest='dataset',help='Directory of the dataset', required=True)
     parser.add_argument('-b', dest='batch_size',help='Size of the batch', required=False,default=32)
-    parser.add_argument('-c', dest='modelCheckpoint', help='Save the state of the model when its loss improves', required=False)
     parser.add_argument('-e', dest='epochs',help='Number of epochs', required=False,default=40)
     parser.add_argument('-o', dest='file_output',help='Directory name to save results', required=False,default=None)
     parser.add_argument('-v','--vertical', dest='number_vert',help='number of vertical cuts', required=False,default=2)
@@ -296,16 +296,14 @@ def main():
     x_test,y_test = generate_data(n_ver,n_hor,gtest)
 
     # MODEL CREATION ----
-    model_list = []
-    for i in range(n_seg):
-        model_list.append(create_cnn(seg_shape))
+    model_list = [create_cnn(seg_shape) for i in range(n_seg)]
 
     inputs_list = [m.input for m in model_list]
     outputs_list = [m.output for m in model_list]
 
-    conc_out = tf.keras.layers.concatenate(outputs_list)
-    dense = tf.keras.layers.Dense(128,activation='relu')(conc_out)
-    out = tf.keras.layers.Dense(2,activation='softmax',name='output_layer')(dense)
+    conc_out = concatenate(outputs_list)
+    dense = Dense(128,activation='relu')(conc_out)
+    out = Dense(2,activation='softmax',name='output_layer')(dense)
 
     model = tf.keras.Model(inputs_list,out)
 
@@ -319,18 +317,6 @@ def main():
     lrate = 1e-4
     opt = tf.keras.optimizers.Adam(lr=lrate)
     callbacks = [] # List of objects that can perform actions at various stages of training
-    
-
-    # User want to save the state of the model when its loss improves
-    if args.modelCheckpoint:
-        if args.modelCheckpoint.find('.h5') == -1:
-            print("\n[Warning] The extent of the model is not indicated. Setting to: /checkpoints/best_model.h5")
-            checkpointdir = "./checkpoints/best_model.h5"
-        else:
-            checkpointdir = args.modelCheckpoint
-
-        checkpoint = ModelCheckpoint(filepath=checkpointdir,save_weights_only=False,monitor='loss',verbose=1,save_best_only=True, mode='min')
-        callbacks.append(checkpoint)
 
     # Stop training when a monitored metric has stopped improving.
     earlystop = EarlyStopping(monitor='loss',mode='min',patience=4,restore_best_weights=True,verbose=1)
@@ -348,9 +334,6 @@ def main():
         validation_steps = len(x_val[0])//batchSize,
         callbacks=callbacks
     )
-
-    if args.modelCheckpoint:
-        model.load_weights(checkpointdir)
 
     # VIEW MODEL TRAINING HISTORY ----
     if args.graph:
