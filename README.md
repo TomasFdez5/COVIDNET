@@ -1,4 +1,4 @@
-<h1 align="center">MIL-COVIDNET</h1>
+<h1 align="center">COVIDNET</h1>
 
 ### Description
 MIL-COVIDNET is a software designed for the detection of COVID-19 in chest radiographs written in Python. The purpose of this project is to allow a machine to be able to detect the affected areas on the x-ray while predicting if it has the disease.
@@ -12,7 +12,7 @@ MIL-COVIDNET is a software designed for the detection of COVID-19 in chest radio
 ## Install
 ```bash
 # Repository files
-$ git clone https://github.com/TomasFdez5/MIL-COVIDNET.git
+$ git clone https://github.com/TomasFdez5/COVIDNET.git
 
 # Move to the project directory
 $ cd MIL-COVIDNET/
