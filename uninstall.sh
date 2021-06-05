@@ -4,6 +4,6 @@ pipenv --rm
 
 # Remove project
 cd ../
-rm -rf MIL-COVIDNET/
+rm -rf COVIDNET/
 
 echo -e '[CORRECT] Project removed.'
