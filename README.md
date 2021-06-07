@@ -1,7 +1,7 @@
 <h1 align="center">COVIDNET</h1>
 
 ### Description
-MIL-COVIDNET is a software designed for the detection of COVID-19 in chest radiographs written in Python. The purpose of this project is to allow a machine to be able to detect the affected areas on the x-ray while predicting if it has the disease.
+COVIDNET is a repository where you can find different deep learning models designed for COVID-19 detection in chest radiographs written in Python. The purpose of this project is to allow a machine to be able to detect the affected areas on the x-ray while predicting if it has the disease.
 
 ## Table of Contents
 * [Install](#install)
