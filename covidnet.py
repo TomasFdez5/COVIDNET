@@ -1,18 +1,4 @@
 import tensorflow as tf
-from tensorflow import keras
-from tensorflow.python.keras.layers.core import Dropout
-from tensorflow.python.ops.gen_math_ops import mul
-
-from tensorflow.keras import backend as k
-"""config = tf.ConfigProto()
-config.gpu_options.allow_growth = True
-sess = tf.Session(config=config)
-try:
-	k.set_session(sess)
-except:
-	print('No session available')
-
-import keras"""
 import matplotlib.pyplot as plt
 import numpy as np
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
@@ -20,9 +6,7 @@ from tensorflow.keras.layers import *
 from tensorflow.keras.callbacks import EarlyStopping
 import argparse
 
-
-# -------------------------------------------------------------------------------------------------------
-
+# ----
 
 def create_cnn(seg_shape):
     """
@@ -60,7 +44,7 @@ def generate_data(gen):
     segment_list = []
     segment_list.append([])
     
-    # Generate all the segments for all the images.
+    # Generate the images set and the labels set
     while data_count != gen.n:
         dat = gen.next()
         img= dat[0].reshape(224,224,3)
@@ -74,7 +58,6 @@ def generate_data(gen):
     segment_list[0] = np.array(segment_list[0])
 
     return segment_list, np.array(labels)
-
 
 def report(history,real,pred,file):
     """
@@ -103,7 +86,7 @@ def report(history,real,pred,file):
     spe = tn / (tn+fp)
 
     # Results
-    if file != None:
+    if file != None: # If the user specifies the file where he wants to store the results 
         with open(str(file),"w") as f:
             f.write('\t-- Train Accuracy --\n')
             f.write("\nMaximum: {}".format(max(np.array(history.history['acc']))))
@@ -148,7 +131,6 @@ def report(history,real,pred,file):
         print("Typical deviation: ", np.std(np.array(history.history['val_loss'])))
         print("\n\t-- Test evaluation--\n\n Confusion matrix:\n( TP:{}  FP: {} )\n( FN:{}  TN: {} )\n\nAccuracy: {}\nSensitivity: {}\nSpecificity:{}\n\nOther metrics:\nPrecision: {}\nF1-score:{}\n".format(tp,fp,fn,tn,accuracy,sensitivity,spe,prec,f1score))
 
-
 def history_graph(history):
     """
     Generate the graphs corresponding to the training history.
@@ -172,7 +154,7 @@ def history_graph(history):
     plt.legend(['Training','Validation'], loc='upper right')
     plt.savefig('./model_loss.jpg')
 
-# MAIN ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# MAIN ----
 
 def main():
     # PARAMETER CONTROL
@@ -181,7 +163,7 @@ def main():
     parser.add_argument('-d', dest='dataset',help='Directory of the dataset', required=True)
     parser.add_argument('-b', dest='batch_size',help='Size of the batch', required=False,default=32)
     parser.add_argument('-e', dest='epochs',help='Number of epochs', required=False,default=40)
-    parser.add_argument('-o', dest='file_output',help='Directory name to save results', required=False,default=None)
+    parser.add_argument('-o', dest='file_output',help='File name to save results', required=False,default=None)
     parser.add_argument('-g',dest='graph', help='Save train historical graphs',action='store_true')
 
     args = parser.parse_args()
@@ -193,12 +175,14 @@ def main():
     train_gen = ImageDataGenerator(rescale=1./255.,validation_split=0.2)
     test_gen = ImageDataGenerator(rescale=1./255.)
 
+    # PARAMETER CONTROL FOR BATCH SIZE
     if int(args.batch_size) < 0:
         print("[ERROR] Batch size must to be greater than 0. Setting to default value (32)...")
         batchSize = 32
     else:
         batchSize = int(args.batch_size)
 
+    # INITIALIZE THE DATA GENERATORS
     gtrain = train_gen.flow_from_directory(
         train_path,
         target_size=(224,224),
@@ -218,17 +202,18 @@ def main():
     gtest = test_gen.flow_from_directory(
         test_path,
         target_size=(224,224),
-        batch_size=1, # Size 1 to apply segmentation one by one.
+        batch_size=1, # Size 1 to generate the test data correctly.
         class_mode='categorical'
     )
 
-    # DATASET GENERATION ----
+    # TEST SET GENERATION ----
     x_test,y_test = generate_data(gtest)
 
     # MODEL CREATION ----
     model = create_cnn((224,224,3))
 
     # MODEL TRAINING ----
+    # PARAMETER CONTROL FOR NUMBER OF EPOCHS
     if int(args.epochs) < 0:
         print("[ERROR] Number of epochs must to be greater than 0. Setting to default value (40)...")
         nEpochs = 40
@@ -240,11 +225,13 @@ def main():
     callbacks = [] # List of objects that can perform actions at various stages of training
 
     # Stop training when a monitored metric has stopped improving.
-    earlystop = EarlyStopping(monitor='loss',mode='min',patience=4,restore_best_weights=True,verbose=1)
+    earlystop = EarlyStopping(monitor='val_loss',mode='min',patience=7,restore_best_weights=True,verbose=1)
     callbacks.append(earlystop)
 
     model.compile(loss='categorical_crossentropy',optimizer=opt,metrics=['acc'])
     #modelo.summary()
+
+    # FIT THE CREATED MODEL
     history = model.fit(
         gtrain,
         epochs=nEpochs,
@@ -260,6 +247,7 @@ def main():
         history_graph(history)
 
     # MODEL TEST ----
+    
     prediccion = model.predict(x_test)
     y_pred = np.argmax(prediccion,axis=1)
     y_test = [0 if np.argmax(i)==0 else 1 for i in y_test]
