@@ -15,7 +15,7 @@ COVIDNET is a repository where you can find different deep learning models desig
 $ git clone https://github.com/TomasFdez5/COVIDNET.git
 
 # Move to the project directory
-$ cd MIL-COVIDNET/
+$ cd COVIDNET/
 
 # Install dependencies with pipenv (Recommended) or install manually.
 $ pip install pipenv
