@@ -158,13 +158,13 @@ def history_graph(history):
 
 def main():
     # PARAMETER CONTROL
-    parser = argparse.ArgumentParser(description='Executable to train and test MIL-CNN Covid-19 detection.')
+    parser = argparse.ArgumentParser(description='Executable to train and test CNN Covid-19 detection.')
 
-    parser.add_argument('-d', dest='dataset',help='Directory of the dataset', required=True)
-    parser.add_argument('-b', dest='batch_size',help='Size of the batch', required=False,default=32)
-    parser.add_argument('-e', dest='epochs',help='Number of epochs', required=False,default=40)
-    parser.add_argument('-o', dest='file_output',help='File name to save results', required=False,default=None)
-    parser.add_argument('-g',dest='graph', help='Save train historical graphs',action='store_true')
+    parser.add_argument('-d','--dataset', dest='dataset',help='Directory of the dataset', required=True)
+    parser.add_argument('-b','--batch', dest='batch_size',help='Size of the batch', required=False,default=32)
+    parser.add_argument('-e','--epochs', dest='epochs',help='Number of epochs', required=False,default=40)
+    parser.add_argument('-o','--output', dest='file_output',help='File name to save results', required=False,default=None)
+    parser.add_argument('-g','--graph',dest='graph', help='Save train historical graphs',action='store_true')
 
     args = parser.parse_args()
 
