@@ -210,7 +210,7 @@ def history_graph(history):
 
 def main():
     # PARAMETER CONTROL
-    parser = argparse.ArgumentParser(description='Executable to train and test MIL-CNN Covid-19 detection.')
+    parser = argparse.ArgumentParser(description='Executable to train and test MIL-CNN Covid-19 detection model.')
 
     parser.add_argument('-d','--dataset', dest='dataset',help='Directory of the dataset', required=True)
     parser.add_argument('-b','--batch', dest='batch_size',help='Size of the batch', required=False,default=32)
